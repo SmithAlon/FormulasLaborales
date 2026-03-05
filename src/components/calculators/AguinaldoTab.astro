@@ -1,0 +1,65 @@
+---
+// AguinaldoTab — Art. 87 LFT
+---
+
+<div id="tab-aguinaldo" class="tab-panel active">
+  <div class="relative overflow-hidden">
+    <span class="big-num">01</span>
+    <h2 class="font-display text-3xl font-bold mb-1">Aguinaldo</h2>
+    <p class="font-mono text-xs text-muted mb-6">Art. 87 LFT — mínimo 15 días de salario por año trabajado</p>
+  </div>
+
+  <div class="formula-box p-4 mb-6 font-mono text-sm leading-7">
+    <span class="text-rust">Salario Diario</span> = Salario Mensual / 30<br>
+    <span class="text-rust">Aguinaldo</span> = Salario Diario × Días de Aguinaldo<br>
+    <span class="text-muted text-xs">Si no laboró el año completo:</span><br>
+    <span class="text-rust">Aguinaldo Prop.</span> = (Salario Diario × Días / 365) × Días Trabajados
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="space-y-4">
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Salario Mensual (MXN)</label>
+        <input type="number" id="ag-salario" placeholder="15000" min="0" step="0.01">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Días de Aguinaldo</label>
+        <input type="number" id="ag-dias" placeholder="15" min="15" value="15">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Días Trabajados en el Año</label>
+        <input type="number" id="ag-trabajados" placeholder="365 (año completo)" min="1" max="365" value="365">
+      </div>
+      <button class="calc-btn" id="ag-calc-btn">Calcular →</button>
+    </div>
+
+    <div id="ag-result" class="result-box hidden">
+      <p class="font-mono text-xs text-muted uppercase tracking-wide mb-3">Resultado</p>
+      <div class="result-item"><span>Salario Diario</span><span id="ag-r1" class="font-mono font-medium">—</span></div>
+      <div class="result-item"><span>Días trabajados</span><span id="ag-r2" class="font-mono font-medium">—</span></div>
+      <div class="result-total">
+        <span class="font-display text-lg font-bold">Aguinaldo Total</span>
+        <span id="ag-r3" class="result-value text-2xl font-bold">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn-box mt-6">⚠️ El mínimo legal son 15 días. Muchas empresas otorgan más por política interna o contrato colectivo.</div>
+</div>
+
+<script>
+  import { fmt, getInputValue, setText, show } from '@/lib/calculadora';
+
+  document.getElementById('ag-calc-btn')?.addEventListener('click', () => {
+    const sm = getInputValue('ag-salario');
+    const dias = getInputValue('ag-dias', 15);
+    const trab = getInputValue('ag-trabajados', 365);
+    const sd = sm / 30;
+    const ag = (sd * dias / 365) * trab;
+
+    setText('ag-r1', fmt(sd));
+    setText('ag-r2', `${trab} días`);
+    setText('ag-r3', fmt(ag));
+    show('ag-result');
+  });
+</script>

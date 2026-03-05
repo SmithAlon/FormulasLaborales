@@ -1,0 +1,79 @@
+---
+// PropinasTab — Cálculo rápido y división entre comensales
+---
+
+<div id="tab-propinas" class="tab-panel">
+  <div class="relative overflow-hidden">
+    <span class="big-num">06</span>
+    <h2 class="font-display text-3xl font-bold mb-1">Propinas</h2>
+    <p class="font-mono text-xs text-muted mb-6">Cálculo rápido y división entre comensales</p>
+  </div>
+
+  <div class="formula-box p-4 mb-6 font-mono text-sm leading-7">
+    <span class="text-rust">Propina</span> = Total × (% / 100)<br>
+    <span class="text-rust">Total con Propina</span> = Total + Propina<br>
+    <span class="text-rust">Por Persona</span> = Total con Propina / N° Personas
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="space-y-4">
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Total de la Cuenta (MXN)</label>
+        <input type="number" id="pr-total" placeholder="850" min="0" step="0.01">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Porcentaje de Propina (%)</label>
+        <div class="flex gap-2 mb-2">
+          <button class="pr-preset font-mono text-xs border border-ink px-3 py-1 hover:bg-ink hover:text-cream transition-colors" data-pct="10">10%</button>
+          <button class="pr-preset font-mono text-xs border border-ink px-3 py-1 hover:bg-ink hover:text-cream transition-colors" data-pct="15">15%</button>
+          <button class="pr-preset font-mono text-xs border border-ink px-3 py-1 hover:bg-ink hover:text-cream transition-colors" data-pct="20">20%</button>
+        </div>
+        <input type="number" id="pr-pct" placeholder="15" min="0" max="100" step="0.5" value="15">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Número de Personas</label>
+        <input type="number" id="pr-personas" placeholder="4" min="1" step="1" value="1">
+      </div>
+      <button class="calc-btn" id="pr-calc-btn">Calcular →</button>
+    </div>
+
+    <div id="pr-result" class="result-box hidden">
+      <p class="font-mono text-xs text-muted uppercase tracking-wide mb-3">Resultado</p>
+      <div class="result-item"><span>Subtotal</span><span id="pr-r1" class="font-mono font-medium">—</span></div>
+      <div class="result-item"><span>Propina</span><span id="pr-r2" class="font-mono font-medium">—</span></div>
+      <div class="result-item"><span>Total con Propina</span><span id="pr-r3" class="font-mono font-medium">—</span></div>
+      <div class="result-total">
+        <span class="font-display text-lg font-bold">Por Persona</span>
+        <span id="pr-r4" class="result-value text-2xl font-bold">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { fmt, getInputValue, getInputInt, setInputValue, setText, show } from '@/lib/calculadora';
+
+  // Preset percentage buttons
+  document.querySelectorAll('.pr-preset').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const pct = (btn as HTMLButtonElement).dataset.pct;
+      if (pct) setInputValue('pr-pct', pct);
+    });
+  });
+
+  document.getElementById('pr-calc-btn')?.addEventListener('click', () => {
+    const total = getInputValue('pr-total');
+    const pct = getInputValue('pr-pct', 15);
+    const personas = getInputInt('pr-personas', 1) || 1;
+
+    const propina = total * (pct / 100);
+    const conPropina = total + propina;
+    const porPersona = conPropina / personas;
+
+    setText('pr-r1', fmt(total));
+    setText('pr-r2', `${fmt(propina)} (${pct}%)`);
+    setText('pr-r3', fmt(conPropina));
+    setText('pr-r4', fmt(porPersona));
+    show('pr-result');
+  });
+</script>

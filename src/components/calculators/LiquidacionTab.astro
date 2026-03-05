@@ -1,0 +1,107 @@
+---
+// LiquidacionTab — Arts. 48 y 50 LFT — Despido injustificado
+---
+
+<div id="tab-liquidacion" class="tab-panel">
+  <div class="relative overflow-hidden">
+    <span class="big-num">03</span>
+    <h2 class="font-display text-3xl font-bold mb-1">Liquidación</h2>
+    <p class="font-mono text-xs text-muted mb-6">Arts. 48 y 50 LFT — Despido injustificado (tiempo indeterminado)</p>
+  </div>
+
+  <div class="formula-box p-4 mb-6 font-mono text-sm leading-7">
+    <span class="text-rust">Total Liquidación</span> =<br>
+    &nbsp;&nbsp;Indem. Constitucional (SD × 90)<br>
+    + Indem. por Antigüedad (SD × 20 × años)<br>
+    + Prima de Antigüedad (SD* × 12 × años)<br>
+    + Partes proporcionales del finiquito<br>
+    <span class="text-muted text-xs">* Tope: 2 × salario mínimo general</span>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="space-y-4">
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Salario Mensual (MXN)</label>
+        <input type="number" id="li-salario" placeholder="15000" min="0" step="0.01">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Años Trabajados</label>
+        <input type="number" id="li-años" placeholder="3" min="0" step="0.5">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Días Trabajados en Año en Curso</label>
+        <input type="number" id="li-trabajados" placeholder="120" min="0" max="365">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Salario Mínimo Diario Vigente (MXN)</label>
+        <input type="number" id="li-smg" placeholder="278.80" min="0" step="0.01" value="278.80">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Días de Aguinaldo</label>
+        <input type="number" id="li-agDias" placeholder="15" min="15" value="15">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Prima Vacacional (%)</label>
+        <input type="number" id="li-prima" placeholder="25" min="25" value="25">
+      </div>
+      <button class="calc-btn" id="li-calc-btn">Calcular →</button>
+    </div>
+
+    <div id="li-result" class="result-box hidden">
+      <p class="font-mono text-xs text-muted uppercase tracking-wide mb-3">Resultado</p>
+      <div class="result-item"><span>Salario Diario</span><span id="li-r1" class="font-mono font-medium">—</span></div>
+      <div class="result-item"><span>Indem. Constitucional (×90)</span><span id="li-r2" class="font-mono font-medium">—</span></div>
+      <div class="result-item"><span>Indem. por Antigüedad (×20×años)</span><span id="li-r3" class="font-mono font-medium">—</span></div>
+      <div class="result-item"><span>Prima de Antigüedad (×12×años)</span><span id="li-r4" class="font-mono font-medium">—</span></div>
+      <div class="result-item"><span>Aguinaldo Proporcional</span><span id="li-r5" class="font-mono font-medium">—</span></div>
+      <div class="result-item"><span>Vacaciones Prop. (importe)</span><span id="li-r6" class="font-mono font-medium">—</span></div>
+      <div class="result-item"><span>Prima Vacacional</span><span id="li-r7" class="font-mono font-medium">—</span></div>
+      <div class="result-total">
+        <span class="font-display text-lg font-bold">Total Liquidación</span>
+        <span id="li-r8" class="result-value text-2xl font-bold">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn-box mt-4">⚠️ Aplica para relaciones laborales por tiempo indeterminado. Para contratos por tiempo determinado ver Art. 50, fracción I LFT.</div>
+</div>
+
+<script>
+  import { fmt, getVacacionesDias, getInputValue, setText, show } from '@/lib/calculadora';
+
+  document.getElementById('li-calc-btn')?.addEventListener('click', () => {
+    const sm = getInputValue('li-salario');
+    const años = getInputValue('li-años');
+    const trab = getInputValue('li-trabajados');
+    const smg = getInputValue('li-smg', 278.80);
+    const agDias = getInputValue('li-agDias', 15);
+    const primaPct = getInputValue('li-prima', 25);
+
+    const sd = sm / 30;
+    const añosCompletos = Math.floor(años);
+    const vacDias = getVacacionesDias(añosCompletos);
+
+    const indConst = sd * 90;
+    const indAnt = sd * 20 * años;
+    const sdTope = Math.min(sd, smg * 2);
+    const primaAnt = sdTope * 12 * años;
+
+    // Proportional severance parts
+    const agProp = (sd * agDias / 365) * trab;
+    const vacProp = (vacDias / 365) * trab;
+    const vacImporte = vacProp * sd;
+    const prima = vacProp * sd * (primaPct / 100);
+
+    const total = indConst + indAnt + primaAnt + agProp + vacImporte + prima;
+
+    setText('li-r1', fmt(sd));
+    setText('li-r2', fmt(indConst));
+    setText('li-r3', fmt(indAnt));
+    setText('li-r4', fmt(primaAnt) + (sd > smg * 2 ? ' ★ tope aplicado' : ''));
+    setText('li-r5', fmt(agProp));
+    setText('li-r6', fmt(vacImporte));
+    setText('li-r7', fmt(prima));
+    setText('li-r8', fmt(total));
+    show('li-result');
+  });
+</script>

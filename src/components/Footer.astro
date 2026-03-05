@@ -1,0 +1,14 @@
+---
+interface Props {
+  disclaimer?: string;
+}
+
+const {
+  disclaimer = '⚠️ Estimación con base en la LFT vigente (Marzo del 2026). Los montos reales pueden variar según contrato individual, colectivo o políticas de la empresa. Consulte a un profesional en derecho laboral para casos específicos.',
+} = Astro.props;
+---
+
+<footer class="border-t-2 border-ink max-w-5xl mx-auto px-6 py-6">
+  <div class="header-stripe mb-4 h-0.75"></div>
+  <p class="font-mono text-xs text-muted text-center">{disclaimer}</p>
+</footer>

@@ -1,0 +1,81 @@
+---
+// SDITab — Salario Diario Integrado (IMSS)
+---
+
+<div id="tab-sdi" class="tab-panel">
+  <div class="relative overflow-hidden">
+    <span class="big-num">04</span>
+    <h2 class="font-display text-3xl font-bold mb-1">Salario Diario Integrado</h2>
+    <p class="font-mono text-xs text-muted mb-6">Usado en cálculos de seguridad social e IMSS</p>
+  </div>
+
+  <div class="formula-box p-4 mb-6 font-mono text-sm leading-7">
+    <span class="text-rust">SDI</span> = Salario Diario<br>
+    &nbsp;&nbsp;+ (15 / 365) × SD <span class="text-muted text-xs">(Aguinaldo)</span><br>
+    &nbsp;&nbsp;+ (Días Vac × 0.25 / 365) × SD <span class="text-muted text-xs">(Prima Vac.)</span>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="space-y-4">
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Salario Mensual (MXN)</label>
+        <input type="number" id="sdi-salario" placeholder="15000" min="0" step="0.01">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Años de Servicio</label>
+        <input type="number" id="sdi-años" placeholder="1" min="1" step="1">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Días Vacaciones (calculado)</label>
+        <input type="number" id="sdi-vacaciones" placeholder="12" readonly class="bg-cream cursor-not-allowed">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Días de Aguinaldo</label>
+        <input type="number" id="sdi-agDias" placeholder="15" min="15" value="15">
+      </div>
+      <button class="calc-btn" id="sdi-calc-btn">Calcular →</button>
+    </div>
+
+    <div id="sdi-result" class="result-box hidden">
+      <p class="font-mono text-xs text-muted uppercase tracking-wide mb-3">Resultado</p>
+      <div class="result-item"><span>Salario Diario</span><span id="sdi-r1" class="font-mono font-medium">—</span></div>
+      <div class="result-item"><span>Parte Prop. Aguinaldo</span><span id="sdi-r2" class="font-mono font-medium">—</span></div>
+      <div class="result-item"><span>Parte Prop. Prima Vacacional</span><span id="sdi-r3" class="font-mono font-medium">—</span></div>
+      <div class="result-total">
+        <span class="font-display text-lg font-bold">SDI</span>
+        <span id="sdi-r4" class="result-value text-2xl font-bold">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { fmt, getVacacionesDias, getInputValue, getInputInt, setInputValue, setText, show } from '@/lib/calculadora';
+
+  // Auto-update vacation days when years change
+  document.getElementById('sdi-años')?.addEventListener('input', () => {
+    const años = getInputInt('sdi-años', 1);
+    setInputValue('sdi-vacaciones', getVacacionesDias(años));
+  });
+
+  // Initialize vacation days
+  setInputValue('sdi-vacaciones', getVacacionesDias(getInputInt('sdi-años', 1)));
+
+  document.getElementById('sdi-calc-btn')?.addEventListener('click', () => {
+    const sm = getInputValue('sdi-salario');
+    const años = getInputInt('sdi-años', 1);
+    const vacDias = getVacacionesDias(años);
+    const agDias = getInputValue('sdi-agDias', 15);
+
+    const sd = sm / 30;
+    const ppAg = (agDias / 365) * sd;
+    const ppPrima = (vacDias * 0.25 / 365) * sd;
+    const sdi = sd + ppAg + ppPrima;
+
+    setText('sdi-r1', fmt(sd));
+    setText('sdi-r2', fmt(ppAg));
+    setText('sdi-r3', fmt(ppPrima));
+    setText('sdi-r4', fmt(sdi));
+    show('sdi-result');
+  });
+</script>

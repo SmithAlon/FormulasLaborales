@@ -1,0 +1,40 @@
+---
+const tabs = [
+  { id: 'aguinaldo', label: '① Aguinaldo' },
+  { id: 'finiquito', label: '② Finiquito' },
+  { id: 'liquidacion', label: '③ Liquidación' },
+  { id: 'sdi', label: '④ SDI' },
+  { id: 'isr', label: '⑤ ISR' },
+  { id: 'propinas', label: '⑥ Propinas' },
+];
+---
+
+<nav class="max-w-5xl mx-auto px-6 pt-6">
+  <div class="flex flex-wrap gap-2">
+    {tabs.map((tab, i) => (
+      <button
+        class:list={[
+          'tab-btn font-mono text-xs px-4 py-2 border border-ink',
+          { active: i === 0 },
+        ]}
+        data-tab={tab.id}
+      >
+        {tab.label}
+      </button>
+    ))}
+  </div>
+  <div class="border-b-2 border-ink mt-0"></div>
+</nav>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('active'));
+      btn.classList.add('active');
+      const tabId = (btn as HTMLButtonElement).dataset.tab;
+      const panel = document.getElementById(`tab-${tabId}`);
+      if (panel) panel.classList.add('active');
+    });
+  });
+</script>

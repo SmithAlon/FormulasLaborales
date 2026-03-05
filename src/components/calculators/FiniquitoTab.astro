@@ -1,0 +1,122 @@
+---
+// FiniquitoTab — Renuncia voluntaria o término de contrato
+---
+
+<div id="tab-finiquito" class="tab-panel">
+  <div class="relative overflow-hidden">
+    <span class="big-num">02</span>
+    <h2 class="font-display text-3xl font-bold mb-1">Finiquito</h2>
+    <p class="font-mono text-xs text-muted mb-6">Renuncia voluntaria o término de contrato</p>
+  </div>
+
+  <div class="formula-box p-4 mb-6 font-mono text-sm leading-7">
+    <span class="text-rust">Total Finiquito</span> =<br>
+    &nbsp;&nbsp;Aguinaldo Proporcional<br>
+    + (Vacaciones Proporcionales × Salario Diario)<br>
+    + Prima Vacacional (25% mínimo)<br>
+    + Salarios Pendientes
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="space-y-4">
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Salario Mensual (MXN)</label>
+        <input type="number" id="fi-salario" placeholder="15000" min="0" step="0.01">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Años de Servicio Cumplidos</label>
+        <input type="number" id="fi-años" placeholder="2" min="0" step="1">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Días Vacaciones (según tabla Art.76)</label>
+        <input type="number" id="fi-vacaciones" placeholder="12" min="0" readonly class="bg-cream cursor-not-allowed">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Días Trabajados en el Año en Curso</label>
+        <input type="number" id="fi-trabajados" placeholder="180" min="0" max="365">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Días de Aguinaldo</label>
+        <input type="number" id="fi-agDias" placeholder="15" min="15" value="15">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Salarios Pendientes (días)</label>
+        <input type="number" id="fi-pendientes" placeholder="0" min="0" value="0">
+      </div>
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Prima Vacacional (%)</label>
+        <input type="number" id="fi-prima" placeholder="25" min="25" value="25">
+      </div>
+      <button class="calc-btn" id="fi-calc-btn">Calcular →</button>
+    </div>
+
+    <div>
+      <!-- Tabla vacaciones Art.76 -->
+      <p class="font-mono text-xs uppercase tracking-wide text-muted mb-2">Tabla Art. 76 LFT (reforma 2022)</p>
+      <table class="mb-4 text-xs">
+        <thead><tr><th>Años</th><th>Días Vac.</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>12</td></tr>
+          <tr><td>2</td><td>14</td></tr>
+          <tr><td>3</td><td>16</td></tr>
+          <tr><td>4</td><td>18</td></tr>
+          <tr><td>5</td><td>20</td></tr>
+          <tr><td>6–10</td><td>22–30</td></tr>
+          <tr><td>11–15</td><td>32–40</td></tr>
+        </tbody>
+      </table>
+
+      <div id="fi-result" class="result-box hidden">
+        <p class="font-mono text-xs text-muted uppercase tracking-wide mb-3">Resultado</p>
+        <div class="result-item"><span>Salario Diario</span><span id="fi-r1" class="font-mono font-medium">—</span></div>
+        <div class="result-item"><span>Aguinaldo Proporcional</span><span id="fi-r2" class="font-mono font-medium">—</span></div>
+        <div class="result-item"><span>Vacaciones Prop. (importe)</span><span id="fi-r3" class="font-mono font-medium">—</span></div>
+        <div class="result-item"><span>Prima Vacacional</span><span id="fi-r4" class="font-mono font-medium">—</span></div>
+        <div class="result-item"><span>Salarios Pendientes</span><span id="fi-r5" class="font-mono font-medium">—</span></div>
+        <div class="result-total">
+          <span class="font-display text-lg font-bold">Total Finiquito</span>
+          <span id="fi-r6" class="result-value text-2xl font-bold">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { fmt, fmtN, getVacacionesDias, getInputValue, getInputInt, setInputValue, setText, show } from '@/lib/calculadora';
+
+  // Auto-update vacation days when years change
+  document.getElementById('fi-años')?.addEventListener('input', () => {
+    const años = getInputInt('fi-años');
+    setInputValue('fi-vacaciones', getVacacionesDias(años));
+  });
+
+  // Initialize vacation days
+  setInputValue('fi-vacaciones', getVacacionesDias(getInputInt('fi-años')));
+
+  document.getElementById('fi-calc-btn')?.addEventListener('click', () => {
+    const sm = getInputValue('fi-salario');
+    const años = getInputInt('fi-años');
+    const vacDias = getVacacionesDias(años);
+    const trab = getInputValue('fi-trabajados');
+    const agDias = getInputValue('fi-agDias', 15);
+    const pendDias = getInputValue('fi-pendientes');
+    const primaPct = getInputValue('fi-prima', 25);
+
+    const sd = sm / 30;
+    const agProp = (sd * agDias / 365) * trab;
+    const vacProp = (vacDias / 365) * trab;
+    const vacImporte = vacProp * sd;
+    const prima = vacProp * sd * (primaPct / 100);
+    const pendiente = pendDias * sd;
+    const total = agProp + vacImporte + prima + pendiente;
+
+    setText('fi-r1', fmt(sd));
+    setText('fi-r2', fmt(agProp));
+    setText('fi-r3', `${fmt(vacImporte)} (${fmtN(vacProp)} días)`);
+    setText('fi-r4', fmt(prima));
+    setText('fi-r5', fmt(pendiente));
+    setText('fi-r6', fmt(total));
+    show('fi-result');
+  });
+</script>

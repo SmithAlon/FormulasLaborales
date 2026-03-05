@@ -1,0 +1,42 @@
+---
+import Layout from '@layouts/Layout.astro';
+import Header from '@components/Header.astro';
+import TabNav from '@components/TabNav.astro';
+import Footer from '@components/Footer.astro';
+import AguinaldoTab from '@components/calculators/AguinaldoTab.astro';
+import FiniquitoTab from '@components/calculators/FiniquitoTab.astro';
+import LiquidacionTab from '@components/calculators/LiquidacionTab.astro';
+import SDITab from '@components/calculators/SDITab.astro';
+import ISRTab from '@components/calculators/ISRTab.astro';
+import PropinasTab from '@components/calculators/PropinasTab.astro';
+---
+
+<Layout>
+  <Header />
+  <TabNav />
+
+  <main class="max-w-5xl mx-auto px-6 pb-16 pt-8">
+    <AguinaldoTab />
+    <FiniquitoTab />
+    <LiquidacionTab />
+    <SDITab />
+    <ISRTab />
+    <PropinasTab />
+  </main>
+
+  <Footer />
+</Layout>
+
+<script>
+  // Global: Enter key triggers the calc button in the active tab panel
+  document.querySelectorAll('input').forEach((inp) => {
+    inp.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        const btn = (e.target as HTMLElement)
+          .closest('.tab-panel')
+          ?.querySelector<HTMLButtonElement>('.calc-btn');
+        btn?.click();
+      }
+    });
+  });
+</script>

@@ -1,0 +1,80 @@
+---
+// ISRTab — Tablas SAT para personas físicas asalariadas
+---
+
+<div id="tab-isr" class="tab-panel">
+  <div class="relative overflow-hidden">
+    <span class="big-num">05</span>
+    <h2 class="font-display text-3xl font-bold mb-1">ISR Simplificado</h2>
+    <p class="font-mono text-xs text-muted mb-6">Tablas SAT — Personas Físicas con actividad asalariada</p>
+  </div>
+
+  <div class="formula-box p-4 mb-6 font-mono text-sm leading-7">
+    <span class="text-rust">ISR</span> = (Ingreso Gravable − Límite Inferior) × Tasa + Cuota Fija
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="space-y-4">
+      <div>
+        <label class="font-mono text-xs uppercase tracking-wide text-muted block mb-1">Ingreso Gravable Mensual (MXN)</label>
+        <input type="number" id="isr-ingreso" placeholder="20000" min="0" step="0.01">
+      </div>
+      <button class="calc-btn" id="isr-calc-btn">Calcular →</button>
+      <div class="warn-box">⚠️ Cálculo simplificado con tabla SAT 2024. El ISR real puede incluir subsidio al empleo y otras deducciones.</div>
+    </div>
+
+    <div>
+      <p class="font-mono text-xs uppercase tracking-wide text-muted mb-2">Tabla ISR Mensual SAT 2024 (resumen)</p>
+      <table class="text-xs">
+        <thead><tr><th>Límite Inf.</th><th>Límite Sup.</th><th>Tasa</th></tr></thead>
+        <tbody>
+          <tr><td>$0.01</td><td>$746.04</td><td>1.92%</td></tr>
+          <tr><td>$746.05</td><td>$6,332.05</td><td>6.40%</td></tr>
+          <tr><td>$6,332.06</td><td>$11,128.01</td><td>10.88%</td></tr>
+          <tr><td>$11,128.02</td><td>$12,935.82</td><td>16.00%</td></tr>
+          <tr><td>$12,935.83</td><td>$15,487.71</td><td>17.92%</td></tr>
+          <tr><td>$15,487.72</td><td>$31,236.49</td><td>21.36%</td></tr>
+          <tr><td>$31,236.50</td><td>$49,233.00</td><td>23.52%</td></tr>
+          <tr><td>$49,233.01</td><td>$93,993.90</td><td>30.00%</td></tr>
+          <tr><td>$93,993.91</td><td>$125,325.20</td><td>32.00%</td></tr>
+          <tr><td>$125,325.21</td><td>∞</td><td>35.00%</td></tr>
+        </tbody>
+      </table>
+
+      <div id="isr-result" class="result-box hidden mt-4">
+        <p class="font-mono text-xs text-muted uppercase tracking-wide mb-3">Resultado</p>
+        <div class="result-item"><span>Rango aplicable</span><span id="isr-r1" class="font-mono font-medium text-xs">—</span></div>
+        <div class="result-item"><span>Tasa marginal</span><span id="isr-r2" class="font-mono font-medium">—</span></div>
+        <div class="result-item"><span>Cuota fija</span><span id="isr-r3" class="font-mono font-medium">—</span></div>
+        <div class="result-item"><span>Ingreso Neto aprox.</span><span id="isr-r4" class="font-mono font-medium">—</span></div>
+        <div class="result-total">
+          <span class="font-display text-lg font-bold">ISR Mensual</span>
+          <span id="isr-r5" class="result-value text-2xl font-bold">—</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { fmt, isrTabla, getInputValue, setText, show } from '@/lib/calculadora';
+
+  document.getElementById('isr-calc-btn')?.addEventListener('click', () => {
+    const ing = getInputValue('isr-ingreso');
+    let rango = isrTabla[isrTabla.length - 1];
+    for (const r of isrTabla) {
+      if (ing >= r.li && ing <= r.ls) {
+        rango = r;
+        break;
+      }
+    }
+    const isr = (ing - rango.li) * rango.tasa + rango.cf;
+
+    setText('isr-r1', `${fmt(rango.li)} – ${rango.ls === Infinity ? '∞' : fmt(rango.ls)}`);
+    setText('isr-r2', `${(rango.tasa * 100).toFixed(2)}%`);
+    setText('isr-r3', fmt(rango.cf));
+    setText('isr-r4', fmt(ing - isr));
+    setText('isr-r5', fmt(isr));
+    show('isr-result');
+  });
+</script>
